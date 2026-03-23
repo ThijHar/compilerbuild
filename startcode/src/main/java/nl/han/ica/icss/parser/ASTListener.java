@@ -1,11 +1,9 @@
 package nl.han.ica.icss.parser;
 
+import nl.han.ica.datastructures.HANStack;
 import nl.han.ica.datastructures.IHANStack;
 import nl.han.ica.icss.ast.*;
-import nl.han.ica.icss.ast.literals.ColorLiteral;
-import nl.han.ica.icss.ast.literals.PercentageLiteral;
-import nl.han.ica.icss.ast.literals.PixelLiteral;
-import nl.han.ica.icss.ast.literals.ScalarLiteral;
+import nl.han.ica.icss.ast.literals.*;
 import nl.han.ica.icss.ast.selectors.ClassSelector;
 import nl.han.ica.icss.ast.selectors.IdSelector;
 import nl.han.ica.icss.ast.selectors.TagSelector;
@@ -84,10 +82,21 @@ public class ASTListener extends ICSSBaseListener {
 			value = new ColorLiteral(ctx.COLOR().getText());
 		} else if (ctx.PERCENTAGE() != null) {
 			value = new PercentageLiteral(ctx.PERCENTAGE().getText());
-		} else {
+		} else if (ctx.SCALAR() != null) {
 			value = new ScalarLiteral(ctx.SCALAR().getText());
+		} else if (ctx.FALSE() != null) {
+			value = new BoolLiteral(false);
+		} else if (ctx.TRUE() != null) {
+			value = new BoolLiteral(true);
+		} else {
+			value = new VariableAssignment();
 		}
 
 		currentContainer.peek().addChild(value);
 	}
+
+//	@Override
+//	public void enterAssignment(ICSSParser.AssignmentContext ctx) {
+//		currentContainer.push();
+//	}
 }

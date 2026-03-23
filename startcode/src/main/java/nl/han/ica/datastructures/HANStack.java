@@ -1,7 +1,7 @@
-package nl.han.ica.icss.parser;
+package nl.han.ica.datastructures;
 
 import java.util.Stack;
-import nl.han.ica.datastructures.IHANStack;
+
 import nl.han.ica.icss.ast.ASTNode;
 
 public class HANStack implements IHANStack<ASTNode> {
