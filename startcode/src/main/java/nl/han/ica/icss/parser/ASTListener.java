@@ -1,35 +1,93 @@
 package nl.han.ica.icss.parser;
 
-import java.util.Stack;
-
-
 import nl.han.ica.datastructures.IHANStack;
 import nl.han.ica.icss.ast.*;
-import nl.han.ica.icss.ast.literals.*;
-import nl.han.ica.icss.ast.operations.AddOperation;
-import nl.han.ica.icss.ast.operations.MultiplyOperation;
-import nl.han.ica.icss.ast.operations.SubtractOperation;
+import nl.han.ica.icss.ast.literals.ColorLiteral;
+import nl.han.ica.icss.ast.literals.PercentageLiteral;
+import nl.han.ica.icss.ast.literals.PixelLiteral;
+import nl.han.ica.icss.ast.literals.ScalarLiteral;
 import nl.han.ica.icss.ast.selectors.ClassSelector;
 import nl.han.ica.icss.ast.selectors.IdSelector;
 import nl.han.ica.icss.ast.selectors.TagSelector;
 
-/**
- * This class extracts the ICSS Abstract Syntax Tree from the Antlr Parse tree.
- */
 public class ASTListener extends ICSSBaseListener {
-	
-	//Accumulator attributes:
-	private AST ast;
 
-	//Use this to keep track of the parent nodes when recursively traversing the ast
+	private AST ast;
 	private IHANStack<ASTNode> currentContainer;
 
 	public ASTListener() {
 		ast = new AST();
-		//currentContainer = new HANStack<>();
+		currentContainer = new HANStack();
 	}
-    public AST getAST() {
-        return ast;
-    }
-    
+
+	public AST getAST() {
+		return ast;
+	}
+
+	@Override
+	public void enterStylesheet(ICSSParser.StylesheetContext ctx) {
+		ast.setRoot(new Stylesheet());
+		currentContainer.push(ast.root);
+	}
+
+	@Override
+	public void exitStylesheet(ICSSParser.StylesheetContext ctx) {
+		currentContainer.pop();
+	}
+
+	@Override
+	public void enterStylerule(ICSSParser.StyleruleContext ctx) {
+		Stylerule stylerule = new Stylerule();
+		currentContainer.peek().addChild(stylerule);
+		currentContainer.push(stylerule);
+	}
+
+	@Override
+	public void exitStylerule(ICSSParser.StyleruleContext ctx) {
+		currentContainer.pop();
+	}
+
+	@Override
+	public void enterSelector(ICSSParser.SelectorContext ctx) {
+		ASTNode selector;
+
+		if (ctx.ID_IDENT() != null) {
+			selector = new IdSelector(ctx.ID_IDENT().getText());
+		} else if (ctx.CLASS_IDENT() != null) {
+			selector = new ClassSelector(ctx.CLASS_IDENT().getText());
+		} else {
+			selector = new TagSelector(ctx.LOWER_IDENT().getText());
+		}
+
+		currentContainer.peek().addChild(selector);
+	}
+
+	@Override
+	public void enterDeclaration(ICSSParser.DeclarationContext ctx) {
+		Declaration declaration = new Declaration(ctx.LOWER_IDENT().getText());
+		currentContainer.peek().addChild(declaration);
+		currentContainer.push(declaration);
+	}
+
+	@Override
+	public void exitDeclaration(ICSSParser.DeclarationContext ctx) {
+		currentContainer.pop();
+	}
+
+	@Override
+	public void enterValue(ICSSParser.ValueContext ctx) {
+		ASTNode value;
+
+		if (ctx.PIXELSIZE() != null) {
+			value = new PixelLiteral(ctx.PIXELSIZE().getText());
+		} else if (ctx.COLOR() != null) {
+			value = new ColorLiteral(ctx.COLOR().getText());
+		} else if (ctx.PERCENTAGE() != null) {
+			value = new PercentageLiteral(ctx.PERCENTAGE().getText());
+		} else {
+			value = new ScalarLiteral(ctx.SCALAR().getText());
+		}
+
+		currentContainer.peek().addChild(value);
+	}
 }
