@@ -42,30 +42,15 @@ MUL: '*';
 ASSIGNMENT_OPERATOR: ':=';
 
 
-
-
-//--- PARSER: ---
-//stylesheet: statement* EOF;
-//
-//statement: propertyname| stylerule;
-//
-//propertyname: CAPITAL_IDENT ASSIGNMENT_OPERATOR value SEMICOLON;
-//
-//stylerule: selector OPEN_BRACE declaration* CLOSE_BRACE;
-//
-//selector: ID_IDENT | CLASS_IDENT | LOWER_IDENT;
-//
-//declaration: LOWER_IDENT COLON value SEMICOLON;
-//
-//value: PIXELSIZE | COLOR | SCALAR | PERCENTAGE | CAPITAL_IDENT | TRUE | FALSE;
-
 stylesheet: statement* EOF;
 
-statement: propertyname| stylerule;
+statement: propertyname | stylerule;
 
 propertyname: CAPITAL_IDENT ASSIGNMENT_OPERATOR expression SEMICOLON;
 
-stylerule: selector OPEN_BRACE declaration* CLOSE_BRACE;
+stylerule: selector OPEN_BRACE body* CLOSE_BRACE;
+
+body: ifClause | declaration;
 
 selector: ID_IDENT | CLASS_IDENT | LOWER_IDENT;
 
@@ -78,3 +63,9 @@ addExpr: mulExpr ((PLUS | MIN) mulExpr)*;
 mulExpr: value (MUL value)*;
 
 value: PIXELSIZE | COLOR | SCALAR | PERCENTAGE | CAPITAL_IDENT | TRUE | FALSE;
+
+ifClause: IF condition OPEN_BRACE declaration* CLOSE_BRACE elseClause?;
+
+condition: BOX_BRACKET_OPEN expression BOX_BRACKET_CLOSE;
+
+elseClause: ELSE OPEN_BRACE declaration* CLOSE_BRACE;
