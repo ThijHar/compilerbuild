@@ -4,6 +4,8 @@ import nl.han.ica.datastructures.HANStack;
 import nl.han.ica.datastructures.IHANStack;
 import nl.han.ica.icss.ast.*;
 import nl.han.ica.icss.ast.literals.*;
+import nl.han.ica.icss.ast.operations.AddOperation;
+import nl.han.ica.icss.ast.operations.MultiplyOperation;
 import nl.han.ica.icss.ast.selectors.ClassSelector;
 import nl.han.ica.icss.ast.selectors.IdSelector;
 import nl.han.ica.icss.ast.selectors.TagSelector;
@@ -107,4 +109,38 @@ public class ASTListener extends ICSSBaseListener {
 	public void exitPropertyname(ICSSParser.PropertynameContext ctx) {
 		currentContainer.pop();
 	}
+
+	@Override
+	public void enterAddExpr(ICSSParser.AddExprContext ctx) {
+		if (ctx.getChildCount() > 1) {
+			AddOperation op = new AddOperation();
+			currentContainer.peek().addChild(op);
+			currentContainer.push(op);
+		}
+	}
+
+	@Override
+	public void exitAddExpr(ICSSParser.AddExprContext ctx) {
+		if (ctx.getChildCount() > 1) {
+			currentContainer.pop();
+		}
+	}
+
+	@Override
+	public void enterMulExpr(ICSSParser.MulExprContext ctx) {
+		if (ctx.getChildCount() > 1) {
+			MultiplyOperation op = new MultiplyOperation();
+			currentContainer.peek().addChild(op);
+			currentContainer.push(op);
+		}
+	}
+
+	@Override
+	public void exitMulExpr(ICSSParser.MulExprContext ctx) {
+		if (ctx.getChildCount() > 1) {
+			currentContainer.pop();
+		}
+	}
+
+
 }
