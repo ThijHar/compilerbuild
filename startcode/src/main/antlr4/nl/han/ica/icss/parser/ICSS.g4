@@ -50,7 +50,7 @@ propertyname: CAPITAL_IDENT ASSIGNMENT_OPERATOR expression SEMICOLON;
 
 stylerule: selector OPEN_BRACE body* CLOSE_BRACE;
 
-body: declaration | ifClause | ;
+body: declaration | ifClause ;
 
 selector: ID_IDENT | CLASS_IDENT | LOWER_IDENT;
 
@@ -64,8 +64,8 @@ mulExpr: value (MUL value)*;
 
 value: PIXELSIZE | COLOR | SCALAR | PERCENTAGE | CAPITAL_IDENT | TRUE | FALSE;
 
-ifClause: IF condition OPEN_BRACE declaration* CLOSE_BRACE elseClause?;
+ifClause: IF condition OPEN_BRACE body* CLOSE_BRACE elseClause?;
 
 condition: BOX_BRACKET_OPEN expression BOX_BRACKET_CLOSE;
 
-elseClause: ELSE OPEN_BRACE declaration* CLOSE_BRACE;
+elseClause: ELSE OPEN_BRACE body* CLOSE_BRACE;
