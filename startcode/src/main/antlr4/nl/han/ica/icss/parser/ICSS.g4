@@ -47,9 +47,9 @@ ASSIGNMENT_OPERATOR: ':=';
 //--- PARSER: ---
 stylesheet: statement* EOF;
 
-statement: variableassignment| stylerule;
+statement: propertyname| stylerule;
 
-variableassignment: CAPITAL_IDENT ASSIGNMENT_OPERATOR value SEMICOLON;
+propertyname: CAPITAL_IDENT ASSIGNMENT_OPERATOR value SEMICOLON;
 
 stylerule: selector OPEN_BRACE declaration* CLOSE_BRACE;
 

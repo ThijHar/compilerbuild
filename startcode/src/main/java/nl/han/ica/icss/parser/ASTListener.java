@@ -89,14 +89,22 @@ public class ASTListener extends ICSSBaseListener {
 		} else if (ctx.TRUE() != null) {
 			value = new BoolLiteral(true);
 		} else {
-			value = new VariableAssignment();
+			value = new VariableReference(ctx.CAPITAL_IDENT().getText());
 		}
 
 		currentContainer.peek().addChild(value);
 	}
 
-//	@Override
-//	public void enterAssignment(ICSSParser.AssignmentContext ctx) {
-//		currentContainer.push();
-//	}
+	@Override
+	public void enterPropertyname(ICSSParser.PropertynameContext ctx) {
+		VariableAssignment assignment = new VariableAssignment();
+		assignment.addChild(new VariableReference(ctx.CAPITAL_IDENT().getText()));
+		currentContainer.peek().addChild(assignment);
+		currentContainer.push(assignment);
+	}
+
+	@Override
+	public void exitPropertyname(ICSSParser.PropertynameContext ctx) {
+		currentContainer.pop();
+	}
 }
