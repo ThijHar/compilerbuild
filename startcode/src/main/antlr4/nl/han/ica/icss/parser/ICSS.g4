@@ -50,7 +50,7 @@ propertyname: CAPITAL_IDENT ASSIGNMENT_OPERATOR expression SEMICOLON;
 
 stylerule: selector OPEN_BRACE body* CLOSE_BRACE;
 
-body: ifClause | declaration;
+body: declaration | ifClause | ;
 
 selector: ID_IDENT | CLASS_IDENT | LOWER_IDENT;
 
