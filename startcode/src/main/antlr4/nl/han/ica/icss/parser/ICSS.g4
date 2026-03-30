@@ -39,6 +39,7 @@ COLON: ':';
 PLUS: '+';
 MIN: '-';
 MUL: '*';
+
 ASSIGNMENT_OPERATOR: ':=';
 
 
@@ -50,7 +51,7 @@ propertyname: CAPITAL_IDENT ASSIGNMENT_OPERATOR expression SEMICOLON;
 
 stylerule: selector OPEN_BRACE body* CLOSE_BRACE;
 
-body: declaration | ifClause ;
+body: declaration | ifClause | propertyname;
 
 selector: ID_IDENT | CLASS_IDENT | LOWER_IDENT;
 

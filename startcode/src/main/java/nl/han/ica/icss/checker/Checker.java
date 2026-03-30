@@ -25,7 +25,7 @@ public class Checker {
     private IHANLinkedList<HashMap<String, ExpressionType>> variableScopes;
 
     public void check(AST ast) {
-        variableScopes = new HANLinkedList();
+        variableScopes = new HANLinkedList<>();
         variableScopes.addFirst(new HashMap<>());
 
         checkNode(ast.root);
@@ -223,14 +223,25 @@ public class Checker {
     }
 
     private ExpressionType getExpectedTypeForProperty(String propertyName) {
-        if (propertyName == "width" || propertyName == "height" || propertyName == "font-size" || propertyName == "margin" || propertyName == "padding" || propertyName == "top" || propertyName == "left" || propertyName == "right" || propertyName == "bottom") {
-            return ExpressionType.PIXEL;
-        } else if (propertyName == "opacity") {
-            return ExpressionType.SCALAR;
-        } else if (propertyName == "color" || propertyName == "background-color" || propertyName == "border-color") {
-            return ExpressionType.COLOR;
-        } else {
-            return ExpressionType.UNDEFINED;
+        switch (propertyName) {
+            case "width":
+            case "height":
+            case "font-size":
+            case "margin":
+            case "padding":
+            case "top":
+            case "left":
+            case "right":
+            case "bottom":
+                return ExpressionType.PIXEL;
+            case "opacity":
+                return ExpressionType.SCALAR;
+            case "color":
+            case "background-color":
+            case "border-color":
+                return ExpressionType.COLOR;
+            default:
+                return ExpressionType.UNDEFINED;
         }
     }
 }

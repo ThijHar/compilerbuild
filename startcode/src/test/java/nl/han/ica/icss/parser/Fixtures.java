@@ -326,4 +326,52 @@ public class Fixtures {
 
 		return new AST(stylesheet);
 	}
+	public static AST uncheckedLevel4(){
+		Stylesheet stylesheet = new Stylesheet();
+
+	/*
+		AdjustWidth := TRUE;
+		WidthVar := 0px;
+	*/
+		stylesheet.addChild((new VariableAssignment())
+				.addChild(new VariableReference("AdjustWidth"))
+				.addChild(new BoolLiteral(true))
+		);
+		stylesheet.addChild((new VariableAssignment())
+				.addChild(new VariableReference("WidthVar"))
+				.addChild(new PixelLiteral("0px"))
+		);
+
+	/*
+		p {
+			if [AdjustWidth] {
+				WidthVar := 200px;
+			} else {
+				WidthVar := 250px;
+			}
+
+			width: WidthVar;
+		}
+	*/
+		stylesheet.addChild((new Stylerule())
+				.addChild(new TagSelector("p"))
+				.addChild((new IfClause())
+						.addChild(new VariableReference("AdjustWidth"))
+						.addChild((new VariableAssignment())
+								.addChild(new VariableReference("WidthVar"))
+								.addChild(new PixelLiteral("200px"))
+						)
+						.addChild((new ElseClause())
+								.addChild((new VariableAssignment())
+										.addChild(new VariableReference("WidthVar"))
+										.addChild(new PixelLiteral("250px"))
+								)
+						)
+				)
+				.addChild((new Declaration("width"))
+						.addChild(new VariableReference("WidthVar"))
+				)
+		);
+		return new AST(stylesheet);
+	}
 }
