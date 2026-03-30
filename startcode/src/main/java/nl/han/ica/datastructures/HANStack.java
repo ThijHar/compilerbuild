@@ -1,24 +1,33 @@
 package nl.han.ica.datastructures;
 
-import java.util.Stack;
+import java.util.ArrayList;
 
-import nl.han.ica.icss.ast.ASTNode;
+public class HANStack<T> implements IHANStack<T> {
 
-public class HANStack implements IHANStack<ASTNode> {
-    private final Stack<ASTNode> stack = new Stack<>();
+    private ArrayList<T> elements;
 
-    @Override
-    public void push(ASTNode value) {
-        stack.push(value);
+    public HANStack() {
+        elements = new ArrayList<>();
     }
 
     @Override
-    public ASTNode pop() {
-        return stack.pop();
+    public void push(T value) {
+        elements.add(value);
     }
 
     @Override
-    public ASTNode peek() {
-        return stack.peek();
+    public T pop() {
+        if (elements.isEmpty()) {
+            throw new RuntimeException("Stack is empty");
+        }
+        return elements.remove(elements.size() - 1);
+    }
+
+    @Override
+    public T peek() {
+        if (elements.isEmpty()) {
+            throw new RuntimeException("Stack is empty");
+        }
+        return elements.get(elements.size() - 1);
     }
 }
