@@ -1,0 +1,16 @@
+AdjustWidth := TRUE;
+WidthVar := 0px;
+
+p {
+	if [AdjustWidth] {
+		WidthVar := 200px;
+	} else {
+		WidthVar := 250px;
+		height: WidthVar;
+	}
+
+	width: WidthVar;
+}
+a {
+	width: WidthVar;
+}

@@ -81,8 +81,6 @@ public class Checker {
 
         ExpressionType type = assignment.expression.getType();
 
-        //todo: check variable kloppen
-
         if (type == ExpressionType.UNDEFINED) {
             assignment.setError("Variabele '" + assignment.name.name + "' krijgt een ongeldige expressie");
         }
