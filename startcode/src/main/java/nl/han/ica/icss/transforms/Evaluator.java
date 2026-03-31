@@ -35,27 +35,28 @@ public class Evaluator implements Transform {
         }
 
         if (node instanceof VariableAssignment) {
-            VariableAssignment assignment = (VariableAssignment) node;
-            evaluate(assignment.expression);
-            variableValues.addFirst(assignment);
+            VariableAssignment va = (VariableAssignment) node;
+            va.expression = evaluateExpression(va.expression);
+            variableValues.addFirst(va);
             return;
         }
 
         if (node instanceof Declaration) {
-            Declaration declaration = (Declaration) node;
-            evaluate(declaration.expression);
+            Declaration decl = (Declaration) node;
+            decl.expression = evaluateExpression(decl.expression);
             return;
         }
 
         if (node instanceof IfClause) {
             IfClause ifClause = (IfClause) node;
-            evaluate(ifClause.conditionalExpression);
 
-            for (ASTNode child : ifClause.body) {
-                evaluate(child);
-            }
+            Expression cond = evaluateExpression(ifClause.conditionalExpression);
 
-            if (ifClause.elseClause != null) {
+            if (cond instanceof BoolLiteral && ((BoolLiteral) cond).value) {
+                for (ASTNode child : ifClause.body) {
+                    evaluate(child);
+                }
+            } else if (ifClause.elseClause != null) {
                 for (ASTNode child : ifClause.elseClause.body) {
                     evaluate(child);
                 }
@@ -66,50 +67,8 @@ public class Evaluator implements Transform {
         for (ASTNode child : node.getChildren()) {
             evaluate(child);
         }
-
-        if (node instanceof Expression) {
-            replaceExpressionWithLiteral((Expression) node);
-        }
     }
 
-    private void replaceExpressionWithLiteral(Expression expression) {
-        if (expression instanceof Literal) {
-            return;
-        }
-
-        if (expression instanceof VariableReference) {
-            VariableReference ref = (VariableReference) expression;
-            Expression replacement = getVariableValue(ref.name);
-            if (replacement != null) {
-                copyExpressionValue(expression, replacement);
-            }
-            return;
-        }
-
-        if (expression instanceof Operation) {
-            Operation op = (Operation) expression;
-            Expression left = op.lhs;
-            Expression right = op.rhs;
-
-            if (left == null || right == null) {
-                return;
-            }
-
-            if (left instanceof VariableReference) {
-                Expression replacement = getVariableValue(((VariableReference) left).name);
-                if (replacement != null) left = replacement;
-            }
-            if (right instanceof VariableReference) {
-                Expression replacement = getVariableValue(((VariableReference) right).name);
-                if (replacement != null) right = replacement;
-            }
-
-            Literal result = calculateOperation(op, left, right);
-            if (result != null) {
-                copyExpressionValue(expression, result);
-            }
-        }
-    }
 
     private Literal calculateOperation(Operation op, Expression left, Expression right) {
         if (left instanceof ScalarLiteral && right instanceof ScalarLiteral) {
@@ -161,20 +120,6 @@ public class Evaluator implements Transform {
         }
 
         return null;
-    }
-
-    private void copyExpressionValue(Expression target, Expression source) {
-        target.setType(source.getType());
-
-        if (source instanceof PixelLiteral) {
-            target.setType(ExpressionType.PIXEL);
-        } else if (source instanceof ScalarLiteral) {
-            target.setType(ExpressionType.SCALAR);
-        } else if (source instanceof ColorLiteral) {
-            target.setType(ExpressionType.COLOR);
-        } else if (source instanceof BoolLiteral) {
-            target.setType(ExpressionType.BOOL);
-        }
     }
 
     private Expression getVariableValue(String name) {
@@ -235,6 +180,34 @@ public class Evaluator implements Transform {
             return ((BoolLiteral) expression).value;
         }
         return false;
+    }
+
+    private Expression evaluateExpression(Expression expr) {
+        if (expr instanceof Literal) {
+            return expr;
+        }
+
+        if (expr instanceof VariableReference) {
+            Expression val = getVariableValue(((VariableReference) expr).name);
+            if (val == null){
+                return expr;
+            }
+            return evaluateExpression(val);
+        }
+
+        if (expr instanceof Operation) {
+            Operation op = (Operation) expr;
+
+            Expression left = evaluateExpression(op.lhs);
+            Expression right = evaluateExpression(op.rhs);
+
+            Literal result = calculateOperation(op, left, right);
+            if (result != null) {
+                return result;
+            }
+        }
+
+        return expr;
     }
 }
 
