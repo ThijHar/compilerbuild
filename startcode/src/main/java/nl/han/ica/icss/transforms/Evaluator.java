@@ -6,6 +6,7 @@ import nl.han.ica.icss.ast.literals.BoolLiteral;
 import nl.han.ica.icss.ast.literals.PixelLiteral;
 import nl.han.ica.icss.ast.literals.ScalarLiteral;
 import nl.han.ica.icss.ast.operations.AddOperation;
+import nl.han.ica.icss.ast.operations.DivOperation;
 import nl.han.ica.icss.ast.operations.MultiplyOperation;
 import nl.han.ica.icss.ast.operations.SubtractOperation;
 
@@ -105,7 +106,6 @@ public class Evaluator implements Transform {
             return;
         }
 
-        // 🔹 DEFAULT: recurse
         for (ASTNode child : node.getChildren()) {
             evaluate(child);
         }
@@ -120,6 +120,12 @@ public class Evaluator implements Transform {
             if (op instanceof AddOperation) return new ScalarLiteral(l + r);
             if (op instanceof SubtractOperation) return new ScalarLiteral(l - r);
             if (op instanceof MultiplyOperation) return new ScalarLiteral(l * r);
+            if (op instanceof DivOperation){
+                if (r == 0) {
+                    return new ScalarLiteral(0);
+                }
+                return new ScalarLiteral(l / r);
+            }
         }
 
         if (left instanceof PixelLiteral && right instanceof PixelLiteral) {
@@ -129,6 +135,12 @@ public class Evaluator implements Transform {
             if (op instanceof AddOperation) return new PixelLiteral(l + r);
             if (op instanceof SubtractOperation) return new PixelLiteral(l - r);
             if (op instanceof MultiplyOperation) return new PixelLiteral(l * r);
+            if (op instanceof DivOperation){
+                if (r == 0) {
+                    return new PixelLiteral(0);
+                }
+                return new PixelLiteral(l / r);
+            }
         }
 
         if (left instanceof PixelLiteral && right instanceof ScalarLiteral) {
@@ -136,6 +148,12 @@ public class Evaluator implements Transform {
             int r = ((ScalarLiteral) right).value;
 
             if (op instanceof MultiplyOperation) return new PixelLiteral(l * r);
+            if (op instanceof DivOperation){
+                if (r == 0) {
+                    return new PixelLiteral(0);
+                }
+                return new PixelLiteral(l / r);
+            }
         }
 
         if (left instanceof ScalarLiteral && right instanceof PixelLiteral) {
@@ -143,6 +161,12 @@ public class Evaluator implements Transform {
             int r = ((PixelLiteral) right).value;
 
             if (op instanceof MultiplyOperation) return new PixelLiteral(l * r);
+            if (op instanceof DivOperation){
+                if (r == 0) {
+                    return new PixelLiteral(0);
+                }
+                return new PixelLiteral(l / r);
+            }
         }
 
         return null;

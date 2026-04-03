@@ -39,6 +39,7 @@ COLON: ':';
 PLUS: '+';
 MIN: '-';
 MUL: '*';
+DIV: '/';
 
 ASSIGNMENT_OPERATOR: ':=';
 
@@ -59,9 +60,11 @@ declaration: LOWER_IDENT COLON expression SEMICOLON;
 
 expression: addExpr;
 
-addExpr: mulExpr ((PLUS | MIN) mulExpr)*;
+addExpr: mulExpr ((PLUS | MIN) (mulExpr | divExpr))*;
 
 mulExpr: value (MUL value)*;
+
+divExpr: value (DIV value)*;
 
 value: PIXELSIZE | COLOR | SCALAR | PERCENTAGE | CAPITAL_IDENT | TRUE | FALSE;
 

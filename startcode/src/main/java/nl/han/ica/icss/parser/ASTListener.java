@@ -5,6 +5,7 @@ import nl.han.ica.datastructures.IHANStack;
 import nl.han.ica.icss.ast.*;
 import nl.han.ica.icss.ast.literals.*;
 import nl.han.ica.icss.ast.operations.AddOperation;
+import nl.han.ica.icss.ast.operations.DivOperation;
 import nl.han.ica.icss.ast.operations.MultiplyOperation;
 import nl.han.ica.icss.ast.selectors.ClassSelector;
 import nl.han.ica.icss.ast.selectors.IdSelector;
@@ -132,6 +133,21 @@ public class ASTListener extends ICSSBaseListener {
 			MultiplyOperation op = new MultiplyOperation();
 			currentContainer.peek().addChild(op);
 			currentContainer.push(op);
+		}
+	}
+
+	@Override
+	public void enterDivExpr(ICSSParser.DivExprContext ctx) {
+		if (ctx.getChildCount() > 1) {
+			DivOperation op = new DivOperation();
+			currentContainer.peek().addChild(op);
+		}
+	}
+
+	@Override
+	public void exitDivExpr(ICSSParser.DivExprContext ctx) {
+		if (ctx.getChildCount() > 1) {
+			currentContainer.pop();
 		}
 	}
 
