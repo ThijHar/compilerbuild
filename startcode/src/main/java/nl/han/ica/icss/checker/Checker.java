@@ -9,6 +9,7 @@ import nl.han.ica.icss.ast.ElseClause;
 import nl.han.ica.icss.ast.Expression;
 import nl.han.ica.icss.ast.IfClause;
 import nl.han.ica.icss.ast.Operation;
+import nl.han.ica.icss.ast.Stylerule;
 import nl.han.ica.icss.ast.VariableAssignment;
 import nl.han.ica.icss.ast.VariableReference;
 import nl.han.ica.icss.ast.literals.BoolLiteral;
@@ -35,6 +36,11 @@ public class Checker {
 
     private void checkNode(ASTNode node) {
         if (node == null) {
+            return;
+        }
+
+        if (node instanceof Stylerule) {
+            checkStylerule((Stylerule) node);
             return;
         }
 
@@ -96,6 +102,10 @@ public class Checker {
         Set<ExpressionType> allowedTypes = getAllowedTypesForProperty(declaration.property.name);
         ExpressionType actual = declaration.expression.getType();
 
+        if (actual == ExpressionType.UNDEFINED) {
+            return;
+        }
+
         if (!allowedTypes.isEmpty() && !allowedTypes.contains(actual)) {
             declaration.setError(
                     "Property '" + declaration.property.name + "' verwacht type " + allowedTypes +
@@ -120,6 +130,16 @@ public class Checker {
         if (ifClause.elseClause != null) {
             checkNode(ifClause.elseClause);
         }
+    }
+
+    private void checkStylerule(Stylerule stylerule) {
+        enterScope();
+
+        for (ASTNode child : stylerule.body) {
+            checkNode(child);
+        }
+
+        exitScope();
     }
 
     private void checkExpression(Expression expression) {
