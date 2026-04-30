@@ -18,7 +18,9 @@ import nl.han.ica.icss.ast.literals.PixelLiteral;
 import nl.han.ica.icss.ast.literals.ScalarLiteral;
 import nl.han.ica.icss.ast.types.ExpressionType;
 
+import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.Set;
 
 public class Checker {
 
@@ -91,12 +93,12 @@ public class Checker {
     private void checkDeclaration(Declaration declaration) {
         checkNode(declaration.expression);
 
-        ExpressionType expected = getExpectedTypeForProperty(declaration.property.name);
+        Set<ExpressionType> allowedTypes = getAllowedTypesForProperty(declaration.property.name);
         ExpressionType actual = declaration.expression.getType();
 
-        if (expected != ExpressionType.UNDEFINED && actual != expected) {
+        if (!allowedTypes.isEmpty() && !allowedTypes.contains(actual)) {
             declaration.setError(
-                    "Property '" + declaration.property.name + "' verwacht type " + expected +
+                    "Property '" + declaration.property.name + "' verwacht type " + allowedTypes +
                             " maar kreeg " + actual
             );
         }
@@ -220,10 +222,11 @@ public class Checker {
         return ExpressionType.UNDEFINED;
     }
 
-    private ExpressionType getExpectedTypeForProperty(String propertyName) {
+    private Set<ExpressionType> getAllowedTypesForProperty(String propertyName) {
         switch (propertyName) {
             case "width":
             case "height":
+                return EnumSet.of(ExpressionType.PIXEL, ExpressionType.PERCENTAGE);
             case "font-size":
             case "margin":
             case "padding":
@@ -231,15 +234,15 @@ public class Checker {
             case "left":
             case "right":
             case "bottom":
-                return ExpressionType.PIXEL;
+                return EnumSet.of(ExpressionType.PIXEL);
             case "opacity":
-                return ExpressionType.SCALAR;
+                return EnumSet.of(ExpressionType.SCALAR, ExpressionType.PERCENTAGE);
             case "color":
             case "background-color":
             case "border-color":
-                return ExpressionType.COLOR;
+                return EnumSet.of(ExpressionType.COLOR);
             default:
-                return ExpressionType.UNDEFINED;
+                return EnumSet.noneOf(ExpressionType.class);
         }
     }
 }
