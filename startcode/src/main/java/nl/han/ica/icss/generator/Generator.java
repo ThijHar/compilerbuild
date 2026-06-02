@@ -42,14 +42,16 @@ public class Generator {
 				this.generatedCSS += "  ";
 				this.generatedCSS += declaration.property.name;
 				this.generatedCSS += ": ";
-                if (!(declaration.expression instanceof VariableReference)) {
+
+                if (declaration.expression instanceof VariableReference) {
+                    this.generatedCSS += getVariableValue(((VariableReference) declaration.expression).name) + ";\n";
+                } else if (declaration.expression instanceof Literal) {
                     String expression = literalToString((Literal) declaration.expression);
 					this.generatedCSS += expression + ";\n";
 				} else {
-					this.generatedCSS += getVariableValue(((VariableReference) declaration.expression).name) + ";\n";
-				}
-
-                System.out.println();
+                    throw new IllegalStateException("Expression is niet geëvalueerd naar een literal: "
+                            + declaration.expression.getClass().getSimpleName());
+                }
 
 			}
 		}
@@ -78,8 +80,8 @@ public class Generator {
 			if (scope.containsKey(name)) {
 				Expression expression = scope.get(name);
 				if (expression instanceof VariableReference) {
-					getVariableValue(((VariableReference) expression).name);
-				} else {
+					return getVariableValue(((VariableReference) expression).name);
+				} else if (expression instanceof Literal) {
 					return literalToString((Literal) expression);
 				}
 			}

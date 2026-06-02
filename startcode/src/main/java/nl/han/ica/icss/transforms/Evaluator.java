@@ -3,6 +3,7 @@ package nl.han.ica.icss.transforms;
 import nl.han.ica.datastructures.HANLinkedList;
 import nl.han.ica.icss.ast.*;
 import nl.han.ica.icss.ast.literals.BoolLiteral;
+import nl.han.ica.icss.ast.literals.PercentageLiteral;
 import nl.han.ica.icss.ast.literals.PixelLiteral;
 import nl.han.ica.icss.ast.literals.ScalarLiteral;
 import nl.han.ica.icss.ast.operations.AddOperation;
@@ -89,6 +90,7 @@ public class Evaluator implements Transform {
             IfClause ifClause = (IfClause) node;
 
             Expression cond = evaluateExpression(ifClause.conditionalExpression);
+            ifClause.conditionalExpression = cond;  // ← voeg deze regel toe
 
             if (cond instanceof BoolLiteral && ((BoolLiteral) cond).value) {
                 enterScope();
@@ -143,6 +145,56 @@ public class Evaluator implements Transform {
             }
         }
 
+        if (left instanceof PercentageLiteral && right instanceof PercentageLiteral) {
+            int l = ((PercentageLiteral) left).value;
+            int r = ((PercentageLiteral) right).value;
+
+            if (op instanceof AddOperation) return new PercentageLiteral(l + r);
+            if (op instanceof SubtractOperation) return new PercentageLiteral(l - r);
+            if (op instanceof MultiplyOperation) return new PercentageLiteral(l * r);
+            if (op instanceof DivOperation){
+                if (r == 0) {
+                    return new PercentageLiteral(0);
+                }
+                return new PercentageLiteral(l / r);
+            }
+        }
+
+        if (left instanceof PercentageLiteral && right instanceof ScalarLiteral) {
+            int l = ((PercentageLiteral) left).value;
+            int r = ((ScalarLiteral) right).value;
+
+            if (op instanceof MultiplyOperation) return new PercentageLiteral(l * r);
+            if (op instanceof DivOperation){
+                if (r == 0) {
+                    return new PercentageLiteral(0);
+                }
+                return new PercentageLiteral(l / r);
+            }
+        }
+
+        if (left instanceof ScalarLiteral && right instanceof PercentageLiteral) {
+            int l = ((ScalarLiteral) left).value;
+            int r = ((PercentageLiteral) right).value;
+
+            if (op instanceof MultiplyOperation) return new PercentageLiteral(l * r);
+        }
+
+        if (left instanceof PixelLiteral && right instanceof PixelLiteral) {
+            int l = ((PixelLiteral) left).value;
+            int r = ((PixelLiteral) right).value;
+
+            if (op instanceof AddOperation) return new PixelLiteral(l + r);
+            if (op instanceof SubtractOperation) return new PixelLiteral(l - r);
+            if (op instanceof MultiplyOperation) return new PixelLiteral(l * r);
+            if (op instanceof DivOperation){
+                if (r == 0) {
+                    return new PixelLiteral(0);
+                }
+                return new PixelLiteral(l / r);
+            }
+        }
+
         if (left instanceof PixelLiteral && right instanceof ScalarLiteral) {
             int l = ((PixelLiteral) left).value;
             int r = ((ScalarLiteral) right).value;
@@ -161,12 +213,6 @@ public class Evaluator implements Transform {
             int r = ((PixelLiteral) right).value;
 
             if (op instanceof MultiplyOperation) return new PixelLiteral(l * r);
-            if (op instanceof DivOperation){
-                if (r == 0) {
-                    return new PixelLiteral(0);
-                }
-                return new PixelLiteral(l / r);
-            }
         }
 
         return null;
